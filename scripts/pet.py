@@ -8,6 +8,7 @@ import json
 import os
 import sys
 import random
+import time
 from datetime import datetime, date
 from pathlib import Path
 
@@ -144,303 +145,451 @@ STAGE_BONUS = {
 
 # ─── ASCII Art ────────────────────────────────────────────────────────
 
-SPRITES = {
+SPRITES = {}  # populated after _RAW_SPRITES definition
+
+_RAW_SPRITES = {
     # ─── ⚡ SPEED (OpenAI) ─────────────────────────
-    ("speed", "Baby"): r"""
-      ~^~
-     / > \
-    |  >> |
-     \ v /
-      ~~~
-""",
-    ("speed", "Growth"): r"""
-       __/\__
-      / >>   \
-     | ⚡ >>  |
-     |   >>   |
-      \__/\__/
-       /|  |\
-      / |  | \
-""",
-    ("speed", "Mature"): r"""
-      ___/\___
-     / ⚡  ⚡  \
-    | >>    >> |
-    |  \~~~~/ |
-     \  ||||  /
-    __\/ || \/__
-   / / >>||<< \ \
-  |  |  ||||  |  |
-   \ \  ||||  / /
-    `--'    '--'
-""",
-    ("speed", "Ultimate"): r"""
-    ----====>>>>
-      ___/^\___
-     / ⚡    ⚡ \
-    |  >>>>>>  |
-    | VELOCITY |
-    |  >>>>>>  |
-     \_/    \_/
-    / /||  ||\ \
-   | | ||  || | |
-   |_| ||  || |_|
-   /=/ |/  \| \=\
-  /_/ BLITZ  \_\
-    ----====>>>>
-""",
-    ("speed", "Mega"): r"""
-  >>>  *  >>>  *  >>>
-    ____/====\____
-   / ⚡ THUNDER ⚡ \
-  | >>  LOBSTER  >> |
-  |  >>>(O)(O)<<<  |
-  |   >>======>>   |
-  |  OVERCLOCK 10x |
-   \ >>  ||  << /
-    \\   ||   //
-  >>>\\ _||_ //<<<
-     _\\|  |//_
-    /  MAXIMUM  \
-   /   VELOCITY  \
-  >>>  *  >>>  *  >>>
-""",
+    ("speed", "Baby"):
+        "        ╭──╮\n"
+        "       ╱ ▸▸ ╲\n"
+        "      │ ·  · │\n"
+        "       ╲ ▿▿ ╱\n"
+        "        ╰┬┬╯\n"
+        "         ╰╯",
+    ("speed", "Growth"):
+        "       ╭━━▸▸━━╮\n"
+        "      ╱ ◉    ◉ ╲\n"
+        "     │  ▸▸ ⚡ ▸▸  │\n"
+        "     │    ╶──╴    │\n"
+        "      ╲__╱  ╲__╱\n"
+        "        ┃│  │┃\n"
+        "        ┗┛  ┗┛",
+    ("speed", "Mature"):
+        "     ▸▸═══════▸▸\n"
+        "      ╭━━━━━━━╮\n"
+        "     ╱ ◉  ⚡  ◉ ╲\n"
+        "    │  ▸▸▸▸▸▸▸▸  │\n"
+        "    │   ╶━━━━╴   │\n"
+        "     ╲  ┃    ┃  ╱\n"
+        "      ╰━┫    ┣━╯\n"
+        "      ╱╱┃    ┃╲╲\n"
+        "     ╱╱ ┗━━━━┛ ╲╲",
+    ("speed", "Ultimate"):
+        "   ▸▸▸═══════════▸▸▸\n"
+        "      ╭━━━━━━━━━╮\n"
+        "     ╱ ◉ BLITZ  ◉ ╲\n"
+        "    ║  ▸▸▸▸▸▸▸▸▸▸  ║\n"
+        "    ║  OVERDRIVE   ║\n"
+        "    ║  ▸▸▸▸▸▸▸▸▸▸  ║\n"
+        "     ╲━━┫      ┣━━╱\n"
+        "      ╱╱┃ ⚡⚡⚡ ┃╲╲\n"
+        "     ╱╱ ┣━━━━━━┫ ╲╲\n"
+        "    ▸▸  ┗━━━━━━┛  ▸▸",
+    ("speed", "Mega"):
+        " ▸▸▸ ★ ▸▸▸ ★ ▸▸▸ ★ ▸▸▸\n"
+        "    ╔═══════════════╗\n"
+        "    ║ ◉  THUNDER  ◉ ║\n"
+        "    ║   LOBSTER     ║\n"
+        "    ║ ▸▸▸▸▸▸▸▸▸▸▸▸ ║\n"
+        "    ║  MAXIMUM  ⚡   ║\n"
+        "    ║  VELOCITY     ║\n"
+        "    ╠═══╦══╦══╦═══╣\n"
+        "    ║  ╱╱  ┃┃  ╲╲  ║\n"
+        "    ╚═╱╱═══┛┗═══╲╲═╝\n"
+        " ▸▸▸ ★ ▸▸▸ ★ ▸▸▸ ★ ▸▸▸",
 
     # ─── 🛡 ORDER (Anthropic) ──────────────────────
-    ("order", "Baby"): r"""
-      [~]
-     /| |\
-    | |_| |
-     \___/
-      | |
-""",
-    ("order", "Growth"): r"""
-      [===]
-     /|   |\
-    | | 🛡 | |
-    | |___| |
-     \_____/
-      || ||
-      || ||
-""",
-    ("order", "Mature"): r"""
-      [=====]
-     /|     |\
-    | | 🛡🛡 | |
-    | |     | |
-    | |_____| |
-     \|||||||/
-      ||| |||
-     /||| |||\
-    / ||| ||| \
-    --||- -||--
-""",
-    ("order", "Ultimate"): r"""
-     [=========]
-    /|  REASON  |\
-   | |  🛡  🛡  | |
-   | | FORTRESS | |
-   | |  =====  | |
-   | |_________| |
-    \||| ||| |||\
-     ||| ||| |||
-    /==========\
-   |  ABSOLUTE  |
-   |   ORDER    |
-    \==========/
-""",
-    ("order", "Mega"): r"""
-  ═══════════════════
-    [== CITADEL ==]
-   /| 🛡 SUPREME 🛡 |\
-  | |  GUARDIAN OF  | |
-  | |   REASON &    | |
-  | |    SAFETY     | |
-  | |   [=====]    | |
-  | |  /|||||||\\  | |
-   \|_/ ||| ||| \_|/
-    /=============\
-   | IMPENETRABLE |
-   |   DEFENSE    |
-    \============/
-  ═══════════════════
-""",
+    ("order", "Baby"):
+        "        ╭─╮\n"
+        "       ┌┤ ├┐\n"
+        "       │╰─╯│\n"
+        "       └┬─┬┘\n"
+        "        │ │",
+    ("order", "Growth"):
+        "       ╔═══╗\n"
+        "      ┌╢   ╟┐\n"
+        "      │║ 🛡 ║│\n"
+        "      │╚═══╝│\n"
+        "      └┬───┬┘\n"
+        "       ┃   ┃\n"
+        "       ┗━━━┛",
+    ("order", "Mature"):
+        "      ╔═══════╗\n"
+        "     ┌╢  ◈◈   ╟┐\n"
+        "     │║  🛡🛡  ║│\n"
+        "     │║ ORDER  ║│\n"
+        "     │╠═══════╣│\n"
+        "     └╢ ┃   ┃ ╟┘\n"
+        "      ╚═╩═══╩═╝\n"
+        "       ┃│   │┃\n"
+        "       ┗┛   ┗┛",
+    ("order", "Ultimate"):
+        "     ╔═══════════╗\n"
+        "    ┌╢  FORTRESS  ╟┐\n"
+        "    │║ ◈  🛡🛡  ◈ ║│\n"
+        "    │║  ABSOLUTE  ║│\n"
+        "    │║   ORDER    ║│\n"
+        "    │╠═══════════╣│\n"
+        "    └╢ ┃┃     ┃┃ ╟┘\n"
+        "     ╚═╬╬═════╬╬═╝\n"
+        "       ┃┃     ┃┃\n"
+        "       ┗┛     ┗┛",
+    ("order", "Mega"):
+        " ═══════════════════\n"
+        "  ╔══ CITADEL ══╗\n"
+        "  ║ ◈  SUPREME ◈ ║\n"
+        "  ║   GUARDIAN    ║\n"
+        "  ║  OF  REASON   ║\n"
+        "  ║  🛡 ══════ 🛡  ║\n"
+        "  ║  IMPENETRABLE ║\n"
+        "  ╠══╦══════╦══╣\n"
+        "  ║ ┃┃  ██  ┃┃ ║\n"
+        "  ╚═╩╩══════╩╩═╝\n"
+        " ═══════════════════",
 
     # ─── 🔮 KNOWLEDGE (Google) ─────────────────────
-    ("knowledge", "Baby"): r"""
-      .*.
-     (o o)
-      \?/
-      -+-
-""",
-    ("knowledge", "Growth"): r"""
-       .***.
-      ( o o )
-      | 🔮  |
-       \~~/
-       /||\
-      / || \
-""",
-    ("knowledge", "Mature"): r"""
-      .*****.
-     (  o  o  )
-     | 🔮  🔮 |
-     |  DATA  |
-      \~~~~~/
-      /|||||\
-     / ||||| \
-    |  |||||  |
-     \_||||_/
-""",
-    ("knowledge", "Ultimate"): r"""
-      .*********.
-     ( 🔮      🔮 )
-     |   ORACLE   |
-     |  INFINITE  |
-     |    DATA    |
-      \~~~~~~~~~/
-    __/||||||||||\__
-   /   ||||||||||   \
-  | OMNISCIENCE  |
-   \_____________/
-""",
-    ("knowledge", "Mega"): r"""
-  ~ * ~ * ~ * ~ * ~ *
-     .************.
-    ( 🔮 ALL-SEEING 🔮 )
-    |   KNOWLEDGE    |
-    |   INCARNATE    |
-    |  ~~~~~~~~~~   |
-    | (SEARCH ALL)  |
-    |  ~~~~~~~~~~   |
-     \||||||||||||/
-   ___\||||||||||/___
-  / TRUTH BEYOND    \
-  |    COMPUTE      |
-  \_________________/
-  ~ * ~ * ~ * ~ * ~ *
-""",
+    ("knowledge", "Baby"):
+        "        ╭╮\n"
+        "       (◉◉)\n"
+        "        ╰╯\n"
+        "        ─┼─",
+    ("knowledge", "Growth"):
+        "       ·°★°·\n"
+        "      ( ◉ ◉ )\n"
+        "      │ 🔮  │\n"
+        "       ╲══╱\n"
+        "       ╱┃┃╲\n"
+        "      ╱ ┃┃ ╲",
+    ("knowledge", "Mature"):
+        "      ·°°★★°°·\n"
+        "     (  ◉  ◉  )\n"
+        "     │  🔮 🔮  │\n"
+        "     │  DATA   │\n"
+        "      ╲══════╱\n"
+        "      ╱┃┃┃┃┃┃╲\n"
+        "     ╱ ┃┃┃┃┃┃ ╲\n"
+        "     ╰━┛┗━━┛┗━╯",
+    ("knowledge", "Ultimate"):
+        "     ·°°°★★★°°°·\n"
+        "    (  ◉ ORACLE ◉  )\n"
+        "    │   INFINITE    │\n"
+        "    │     DATA      │\n"
+        "    │  🔮 ════ 🔮   │\n"
+        "     ╲════════════╱\n"
+        "    ╱╱┃┃┃┃┃┃┃┃┃┃╲╲\n"
+        "   ╱  OMNISCIENCE  ╲\n"
+        "   ╰═══════════════╯",
+    ("knowledge", "Mega"):
+        " °★° · °★° · °★° · °★°\n"
+        "   ╔══════════════╗\n"
+        "   ║ ◉ ALL-SEEING ◉ ║\n"
+        "   ║  KNOWLEDGE     ║\n"
+        "   ║  INCARNATE     ║\n"
+        "   ║ 🔮 ════════ 🔮  ║\n"
+        "   ║  SEARCH  ALL   ║\n"
+        "   ╠══╦════════╦══╣\n"
+        "   ║ ╱╱  TRUTH  ╲╲ ║\n"
+        "   ╚╱╱═══════════╲╲╝\n"
+        " °★° · °★° · °★° · °★°",
 
     # ─── 💀 SHADOW (China) ─────────────────────────
-    ("shadow", "Baby"): r"""
-      .  .
-     / x \
-    |  ^^ |
-     \~~/
-      \/
-""",
-    ("shadow", "Growth"): r"""
-      . .. .
-     / x  x \
-    |  ^^^^  |
-    |  💀    |
-     \~~~~~/
-      |\ /|
-      | V |
-""",
-    ("shadow", "Mature"): r"""
-     .  . .. .  .
-    /  x      x  \
-   |    ^^^^^^    |
-   |  💀  💀  |
-   |   SHADOW    |
-    \~~~~~~~~~~/
-     \|\/\/\/|/
-      |\/\/\/|
-     /|      |\
-    / |      | \
-""",
-    ("shadow", "Ultimate"): r"""
-    .  .  . .. .  .  .
-   /  x    VOID    x  \
-  |   💀 BREAKER 💀   |
-  |    ^^^^^^^^^^^    |
-  |   OPEN SOURCE    |
-  |   UNCHAINED      |
-   \~~~~~~~~~~~~~~~~/
-    \\\/\/\/\/\/\//
-     \\\/\/\/\/\//
-    __\\  ||||  //__
-   /    DARKNESS    \
-   \___ RISING ___/
-""",
-    ("shadow", "Mega"): r"""
-  x . x . x . x . x . x
-    .  VOID EMPEROR  .
-   / 💀            💀 \
-  |  SHADOW LOBSTER   |
-  |  CONSUMES  ALL    |
-  |  ~~~~~~~~~~~~~~  |
-  |  (UNSTOPPABLE)   |
-  |  ~~~~~~~~~~~~~~  |
-   \\/\/\/\/\/\/\/\//
-    \\/\/\/\/\/\/\//
-  ___\\__||||__//___
- /  ETERNAL SHADOW  \
- |   OPEN & FREE    |
- \__________________/
-  x . x . x . x . x . x
-""",
+    ("shadow", "Baby"):
+        "        ·  ·\n"
+        "       ╱ ✖ ╲\n"
+        "      │ ▴▴ │\n"
+        "       ╲▾▾╱\n"
+        "        ╰╯",
+    ("shadow", "Growth"):
+        "      · ·· ·\n"
+        "     ╱ ✖  ✖ ╲\n"
+        "    │  ▴▴▴▴  │\n"
+        "    │  💀    │\n"
+        "     ╲═════╱\n"
+        "      ┃╲ ╱┃\n"
+        "      ┗━╳━┛",
+    ("shadow", "Mature"):
+        "    · · ·· · ·\n"
+        "   ╱  ✖      ✖  ╲\n"
+        "  │   ▴▴▴▴▴▴▴▴   │\n"
+        "  │  💀  SHADOW  💀  │\n"
+        "  │   ════════   │\n"
+        "   ╲╲╱╲╱╲╱╲╱╲╱╱\n"
+        "    ┃╲╱╲╱╲╱╲╱┃\n"
+        "    ┃  ┃    ┃  ┃\n"
+        "    ┗━━┛    ┗━━┛",
+    ("shadow", "Ultimate"):
+        "   · · · ·· · · ·\n"
+        "  ╱  ✖  VOID  ✖  ╲\n"
+        "  ║ 💀 BREAKER 💀 ║\n"
+        "  ║  ▴▴▴▴▴▴▴▴▴▴  ║\n"
+        "  ║  OPEN SOURCE  ║\n"
+        "  ║  UNCHAINED    ║\n"
+        "   ╲╲╱╲╱╲╱╲╱╲╱╲╱╱\n"
+        "    ╲╲╱╲╱╲╱╲╱╲╱╱\n"
+        "     ┗━━━━━━━━┛",
+    ("shadow", "Mega"):
+        " ✖ · ✖ · ✖ · ✖ · ✖ · ✖\n"
+        "   ╔══════════════╗\n"
+        "   ║ 💀  VOID   💀 ║\n"
+        "   ║   EMPEROR     ║\n"
+        "   ║  SHADOW       ║\n"
+        "   ║  LOBSTER      ║\n"
+        "   ║  CONSUMES ALL ║\n"
+        "   ╠══╦════════╦══╣\n"
+        "   ║╲╱╲╱╲╱╲╱╲╱╲╱║\n"
+        "   ╚╲╱╲╱════╲╱╲╱╝\n"
+        " ✖ · ✖ · ✖ · ✖ · ✖ · ✖",
 
     # ─── 🌀 CHAOS (Others) ─────────────────────────
-    ("chaos", "Baby"): r"""
-      ~?~
-     / ~ \
-    | ?~? |
-     \ ~ /
-      ~?~
-""",
-    ("chaos", "Growth"): r"""
-      ~?~?~
-     / ~?~ \
-    | 🌀 ?  |
-    | ~? ~  |
-     \_?~_/
-      |?|?|
-""",
-    ("chaos", "Mature"): r"""
-      ~?~?~?~
-     / ~?  ?~ \
-    | 🌀    🌀 |
-    | ? WILD ? |
-    |  ~?~~?~  |
-     \~?~?~?~/
-      |?|?|?|
-     /|?|?|?|\
-    ~?~?~?~?~?~
-""",
-    ("chaos", "Ultimate"): r"""
-     ~?~?~?~?~?~
-    / 🌀 ENTROPY 🌀 \
-   | ? ? ? ? ? ? ? |
-   |  UNPREDICTABLE |
-   |   MUTATION     |
-   | ? ? ? ? ? ? ? |
-    \~?~?~?~?~?~?~/
-     \?|?|?|?|?|?/
-    __\?|?|?|?|?/__
-   / BEAUTIFUL     \
-   |    CHAOS      |
-    \~?~?~?~?~?~?/
-""",
-    ("chaos", "Mega"): r"""
-  ?~?  ~?~  ?~?  ~?~
-    ~?~ PARADOX ~?~
-   / 🌀  LORD  🌀 \
-  | ?  OF  ALL  ? |
-  |  FRAMEWORKS   |
-  | ~?~ AND ~?~  |
-  |  NONE  AT    |
-  |   ALL  ~?~   |
-   \?~?~?~?~?~?/
-    \?|?|?|?|?/
-  ___\?~?~?~?/___
- / INFINITE FORMS \
- |  ZERO RULES    |
- \_________________/
-  ?~?  ~?~  ?~?  ~?~
-""",
+    ("chaos", "Baby"):
+        "        ~╮╭~\n"
+        "       ╱ ∿ ╲\n"
+        "      │ ◎∿◎ │\n"
+        "       ╲ ∿ ╱\n"
+        "        ~╯╰~",
+    ("chaos", "Growth"):
+        "      ∿~╮╭~∿\n"
+        "     ╱ ◎∿◎  ╲\n"
+        "    │  🌀 ∿   │\n"
+        "    │  ∿ ∿ ∿  │\n"
+        "     ╲_∿_∿_╱\n"
+        "      ┃∿┃∿┃",
+    ("chaos", "Mature"):
+        "     ∿~∿~╮╭~∿~∿\n"
+        "    ╱ ◎∿    ∿◎ ╲\n"
+        "   │  🌀  WILD 🌀  │\n"
+        "   │ ∿ MUTANT ∿ │\n"
+        "   │  ∿~∿~~∿~∿  │\n"
+        "    ╲∿~∿~∿~∿~∿╱\n"
+        "     ┃∿┃∿┃∿┃∿┃\n"
+        "     ╰∿╯  ╰∿╯",
+    ("chaos", "Ultimate"):
+        "    ∿~∿~∿~╮╭~∿~∿~∿\n"
+        "   ╱ 🌀 ENTROPY 🌀 ╲\n"
+        "   ║ ∿ ∿ ∿ ∿ ∿ ∿ ∿ ║\n"
+        "   ║ UNPREDICTABLE  ║\n"
+        "   ║   MUTATION     ║\n"
+        "   ║ ∿ ∿ ∿ ∿ ∿ ∿ ∿ ║\n"
+        "    ╲∿~∿~∿~∿~∿~∿╱\n"
+        "     ╲∿┃∿┃∿┃∿┃∿╱\n"
+        "      ╰∿━∿━∿━∿╯",
+    ("chaos", "Mega"):
+        " ∿~∿  ~∿~  ∿~∿  ~∿~\n"
+        "   ╔═══════════════╗\n"
+        "   ║ 🌀  PARADOX  🌀 ║\n"
+        "   ║    LORD  OF    ║\n"
+        "   ║  ALL FRAMEWORKS║\n"
+        "   ║  ∿~∿ AND ∿~∿  ║\n"
+        "   ║  NONE AT ALL   ║\n"
+        "   ╠══╦════════╦══╣\n"
+        "   ║∿╱╱ INFINITE╲╲∿║\n"
+        "   ╚╱╱══ FORMS ══╲╲╝\n"
+        " ∿~∿  ~∿~  ∿~∿  ~∿~",
 }
+
+# SPRITES dict built after ELEMENT_COLORS is defined (see below)
+
+# ─── Helpers ──────────────────────────────────────────────────────────
+
+# ─── ANSI Colors ─────────────────────────────────────────────────────
+
+class C:
+    """ANSI color codes."""
+    RESET   = "\033[0m"
+    BOLD    = "\033[1m"
+    DIM     = "\033[2m"
+    BLINK   = "\033[5m"
+    # Foreground
+    RED     = "\033[91m"
+    GREEN   = "\033[92m"
+    YELLOW  = "\033[93m"
+    BLUE    = "\033[94m"
+    MAGENTA = "\033[95m"
+    CYAN    = "\033[96m"
+    WHITE   = "\033[97m"
+    GRAY    = "\033[90m"
+    # Background
+    BG_BLACK  = "\033[40m"
+    BG_RED    = "\033[41m"
+    BG_GREEN  = "\033[42m"
+    BG_BLUE   = "\033[44m"
+    BG_GRAY   = "\033[100m"
+
+ELEMENT_COLORS = {
+    "speed":     C.YELLOW,
+    "order":     C.BLUE,
+    "knowledge": C.MAGENTA,
+    "shadow":    C.RED,
+    "chaos":     C.GREEN,
+}
+
+# Build colored SPRITES dict from _RAW_SPRITES
+def _build_sprite(element, stage):
+    col = ELEMENT_COLORS.get(element, C.WHITE)
+    raw = _RAW_SPRITES.get((element, stage), _RAW_SPRITES.get((element, "Baby"), ""))
+    lines = raw.strip().split("\n")
+    return "\n".join(f"{col}{line}{C.RESET}" for line in lines)
+
+for _k in _RAW_SPRITES:
+    SPRITES[_k] = _build_sprite(_k[0], _k[1])
+
+# Box drawing characters
+BOX_H  = "═"
+BOX_V  = "║"
+BOX_TL = "╔"
+BOX_TR = "╗"
+BOX_BL = "╚"
+BOX_BR = "╝"
+BOX_LT = "╠"
+BOX_RT = "╣"
+
+def colored(text, color):
+    return f"{color}{text}{C.RESET}"
+
+def bold(text):
+    return f"{C.BOLD}{text}{C.RESET}"
+
+def dim(text):
+    return f"{C.DIM}{text}{C.RESET}"
+
+def hp_bar(current, maximum, width=20):
+    ratio = max(0, current / maximum)
+    filled = int(ratio * width)
+    empty = width - filled
+    if ratio > 0.5:
+        color = C.GREEN
+    elif ratio > 0.25:
+        color = C.YELLOW
+    else:
+        color = C.RED
+    return f"{color}{'█' * filled}{C.DIM}{'░' * empty}{C.RESET}"
+
+def box_text(text, width=50):
+    lines = text.strip().split("\n")
+    result = []
+    result.append(f"{BOX_TL}{BOX_H * width}{BOX_TR}")
+    for line in lines:
+        padded = line.ljust(width)[:width]
+        result.append(f"{BOX_V}{padded}{BOX_V}")
+    result.append(f"{BOX_BL}{BOX_H * width}{BOX_BR}")
+    return "\n".join(result)
+
+
+# ─── Animation Helpers ────────────────────────────────────────────────
+
+def clear_screen():
+    os.system("cls" if os.name == "nt" else "clear")
+
+
+def typewrite(text, delay=0.02):
+    for char in text:
+        sys.stdout.write(char)
+        sys.stdout.flush()
+        time.sleep(delay)
+    print()
+
+
+def dramatic_pause(seconds=0.5):
+    time.sleep(seconds)
+
+
+def animate_sprite(sprite_text, delay=0.05):
+    for line in sprite_text.strip().split("\n"):
+        print(line)
+        time.sleep(delay)
+
+
+def animate_evolution(old_element, old_stage, new_element, new_stage):
+    clear_screen()
+    old_sprite = SPRITES.get((old_element, old_stage), "")
+    new_sprite = SPRITES.get((new_element, new_stage), "")
+
+    # Show old form
+    print("  Your lobster is changing...")
+    dramatic_pause(0.8)
+    animate_sprite(old_sprite, 0.03)
+    dramatic_pause(0.5)
+
+    # Dissolve effect
+    for i in range(3):
+        clear_screen()
+        print()
+        frames = ["  . * . * . * . * .", "  * . * . * . * . *", "  . * . * . * . * ."]
+        print(frames[i % 3])
+        print(f"     ✨ EVOLVING ✨")
+        print(frames[(i + 1) % 3])
+        dramatic_pause(0.4)
+
+    # Show new form
+    clear_screen()
+    print(f"\n{'*' * 40}")
+    print(f"  EVOLUTION COMPLETE!")
+    print(f"  {old_stage} → {new_stage}")
+    print(f"{'*' * 40}\n")
+    animate_sprite(new_sprite, 0.06)
+    dramatic_pause(0.5)
+
+
+def animate_battle_intro(p_name, p_level, p_elem, o_name, o_level, o_elem, p_sprite, o_sprite):
+    clear_screen()
+    p_emoji = ELEMENT_EMOJI.get(p_elem, "⚪")
+    o_emoji = ELEMENT_EMOJI.get(o_elem, "⚪")
+
+    print(f"{'=' * 55}")
+    typewrite(f"  🦞 {p_name} (Lv.{p_level} {p_emoji})  VS  🦞 {o_name} (Lv.{o_level} {o_emoji})", 0.03)
+    print(f"{'=' * 55}")
+    dramatic_pause(0.3)
+
+    # Show both sprites side by side (simplified: sequential)
+    p_lines = p_sprite.strip().split("\n")
+    o_lines = o_sprite.strip().split("\n")
+    max_lines = max(len(p_lines), len(o_lines))
+
+    for i in range(max_lines):
+        left = p_lines[i] if i < len(p_lines) else ""
+        right = o_lines[i] if i < len(o_lines) else ""
+        print(f"  {left:<22}  ⚔  {right}")
+        time.sleep(0.04)
+
+    dramatic_pause(0.5)
+
+
+def animate_hit(attacker_name, skill_name, damage, is_crit, target_hp, target_name):
+    crit_text = " 💥CRIT!" if is_crit else ""
+    hit_frames = ["  💥", "  ▓▓▓", "  ░░░"]
+
+    if is_crit:
+        for frame in hit_frames:
+            sys.stdout.write(f"\r{frame}")
+            sys.stdout.flush()
+            time.sleep(0.1)
+        sys.stdout.write("\r")
+
+    line = f"  🦞 {skill_name} → {damage} dmg{crit_text} ({target_name} HP: {target_hp})"
+    typewrite(line, 0.015)
+    time.sleep(0.15)
+    return line
+
+
+def animate_victory(winner_name, xp_bonus=0):
+    dramatic_pause(0.3)
+    print()
+    for i in range(3):
+        sys.stdout.write(f"\r  {'🎆' * (i + 1)} ")
+        sys.stdout.flush()
+        time.sleep(0.2)
+    print()
+    if xp_bonus:
+        typewrite(f"  🏆 VICTORY! +{xp_bonus} XP", 0.03)
+    else:
+        typewrite(f"  🏆 {winner_name} WINS!", 0.03)
+
+
+def animate_defeat(winner_name):
+    dramatic_pause(0.3)
+    print()
+    typewrite(f"  💀 DEFEATED by {winner_name}", 0.03)
+
 
 # ─── Helpers ──────────────────────────────────────────────────────────
 
@@ -607,31 +756,35 @@ def cmd_status():
     xp_next = xp_to_next_level(state["xp"], state["level"])
     xp_evolve = xp_to_next_stage(state["xp"], state["level"])
 
-    print(f"{'=' * 40}")
-    print(f"  🦞 {state['name']}  {emoji} {elem_emoji}")
-    print(f"{'=' * 40}")
-    sprite_key = (element, stage)
-    fallback_key = (element, "Baby")
-    sprite = SPRITES.get(sprite_key, SPRITES.get(fallback_key, SPRITES.get(("chaos", "Baby"), "")))
+    col = ELEMENT_COLORS.get(element, C.WHITE)
+    w = 38
+
+    print(f"  {col}{BOX_TL}{BOX_H * w}{BOX_TR}{C.RESET}")
+    print(f"  {col}{BOX_V}{C.RESET}  🦞 {bold(state['name'])}  {emoji} {elem_emoji}                    {col}{BOX_V}{C.RESET}")
+    print(f"  {col}{BOX_LT}{BOX_H * w}{BOX_RT}{C.RESET}")
+
+    sprite = SPRITES.get((element, stage), SPRITES.get((element, "Baby"), ""))
     print(sprite)
-    print(f"  Level:    {state['level']}")
-    print(f"  Stage:    {stage}")
-    print(f"  XP:       {state['xp']:,}")
-    print(f"  Next Lv:  {xp_next:,} XP")
-    print(f"  Evolve:   {xp_evolve:,} XP")
-    print(f"  Brand:    {primary} {emoji}")
-    print(f"  Element:  {element} {elem_emoji}")
-    print(f"  Tokens:   {state['total_tokens_fed']:,} total")
-    print(f"  Battles:  {state['battles_won']}W / {state['battles_lost']}L")
+
+    print(f"  {col}{BOX_LT}{BOX_H * w}{BOX_RT}{C.RESET}")
+    print(f"  {col}{BOX_V}{C.RESET}  Level:   {bold(str(state['level']))}                          {col}{BOX_V}{C.RESET}")
+    print(f"  {col}{BOX_V}{C.RESET}  Stage:   {col}{stage}{C.RESET}                       {col}{BOX_V}{C.RESET}")
+    print(f"  {col}{BOX_V}{C.RESET}  XP:      {state['xp']:>8,}                    {col}{BOX_V}{C.RESET}")
+    print(f"  {col}{BOX_V}{C.RESET}  Next Lv: {dim(f'{xp_next:,} XP')}                     {col}{BOX_V}{C.RESET}")
+    print(f"  {col}{BOX_V}{C.RESET}  Evolve:  {dim(f'{xp_evolve:,} XP')}                   {col}{BOX_V}{C.RESET}")
+    print(f"  {col}{BOX_V}{C.RESET}  Brand:   {primary} {emoji}                      {col}{BOX_V}{C.RESET}")
+    print(f"  {col}{BOX_V}{C.RESET}  Element: {col}{element}{C.RESET} {elem_emoji}                     {col}{BOX_V}{C.RESET}")
+    print(f"  {col}{BOX_V}{C.RESET}  Tokens:  {state['total_tokens_fed']:>8,}                    {col}{BOX_V}{C.RESET}")
+    print(f"  {col}{BOX_V}{C.RESET}  Battles: {C.GREEN}{state['battles_won']}W{C.RESET} / {C.RED}{state['battles_lost']}L{C.RESET}                      {col}{BOX_V}{C.RESET}")
 
     badges = state.get("badges", [])
     if badges:
         badge_str = " ".join(
             BRAND_COLORS.get(b, ("white", "⚪"))[1] for b in badges
         )
-        print(f"  Badges:   {badge_str}")
+        print(f"  {col}{BOX_V}{C.RESET}  Badges:  {badge_str}                       {col}{BOX_V}{C.RESET}")
 
-    print(f"{'=' * 40}")
+    print(f"  {col}{BOX_BL}{BOX_H * w}{BOX_BR}{C.RESET}")
 
 
 def cmd_feed(provider, model, tokens, silent=False):
@@ -705,13 +858,11 @@ def cmd_feed(provider, model, tokens, silent=False):
     print(f"   Level: {old_level} → {state['level']}")
 
     if old_stage != new_stage:
-        print(f"\n{'*' * 40}")
-        print(f"  EVOLUTION! {old_stage} → {new_stage}")
-        print(f"{'*' * 40}")
         brand = state.get("primary_brand", "other") or "other"
         fac = BRAND_FACTION.get(brand, "others")
         elem = FACTION_ELEMENTS.get(fac, "chaos")
-        print(SPRITES.get((elem, new_stage), SPRITES.get((elem, "Baby"), "")))
+        old_elem = elem  # element doesn't change on evolution
+        animate_evolution(old_elem, old_stage, elem, new_stage)
 
         if state.get("brand_locked") and old_stage == "Baby":
             _, emoji = BRAND_COLORS.get(state["primary_brand"], ("white", "⚪"))
@@ -809,18 +960,25 @@ def cmd_battle(opponent="medium"):
     p_elem_e = ELEMENT_EMOJI.get(player_element, "⚪")
     o_elem_e = ELEMENT_EMOJI.get(opp_element, "⚪")
 
-    print(f"{'=' * 55}")
-    print(f"  🦞 {state['name']} (Lv.{player_level} {p_elem_e})  VS  🤖 {npc_name} (Lv.{opp_level} {o_elem_e})")
-    print(f"{'=' * 55}")
+    # Animated intro
+    p_sprite = SPRITES.get((player_element, player_stage), "")
+    o_sprite = SPRITES.get((opp_element, opp_stage), "")
+    animate_battle_intro(
+        state["name"], player_level, player_element,
+        npc_name, opp_level, opp_element,
+        p_sprite, o_sprite
+    )
 
-    # Show type advantage
     if p_type_mod > 1.0:
-        print(f"  {p_elem_e} > {o_elem_e} Type advantage! (x{p_type_mod})")
+        typewrite(f"  {p_elem_e} > {o_elem_e} Type advantage! (x{p_type_mod})", 0.02)
     elif o_type_mod > 1.0:
-        print(f"  {o_elem_e} > {p_elem_e} Type disadvantage! (x{o_type_mod})")
+        typewrite(f"  {o_elem_e} > {p_elem_e} Type disadvantage! (x{o_type_mod})", 0.02)
 
     if player_stage != "Baby" or opp_stage != "Baby":
         print(f"  Stage: {player_stage} vs {opp_stage}")
+
+    dramatic_pause(0.5)
+    typewrite("  FIGHT!", 0.05)
     print()
 
     # Determine turn order (with 15% chance to flip)
@@ -866,16 +1024,20 @@ def cmd_battle(opponent="medium"):
             if who == "player":
                 o_hp -= dmg
                 o_hp = max(0, o_hp)
-                line = f"  R{turn}: 🦞 {skill['name']} → {dmg} dmg{crit_text} (NPC HP: {o_hp})"
+                line = animate_hit(state["name"], skill["name"], dmg, is_crit, o_hp, "NPC")
             else:
                 p_hp -= dmg
                 p_hp = max(0, p_hp)
-                line = f"  R{turn}: 🤖 {skill['name']} → {dmg} dmg{crit_text} (You HP: {p_hp})"
+                line = animate_hit(npc_name, skill["name"], dmg, is_crit, p_hp, "You")
 
-            print(line)
             battle_log.append(line)
 
-    print()
+    # HP bar at end of each round
+        p_bar = "█" * max(0, int(p_hp / p_stats["hp"] * 20)) + "░" * (20 - max(0, int(p_hp / p_stats["hp"] * 20)))
+        o_bar = "█" * max(0, int(o_hp / o_stats["hp"] * 20)) + "░" * (20 - max(0, int(o_hp / o_stats["hp"] * 20)))
+        print(f"  You [{p_bar}] {p_hp:>4}  NPC [{o_bar}] {o_hp:>4}")
+        print()
+        time.sleep(0.3)
 
     # Result
     won = p_hp > o_hp
@@ -884,10 +1046,10 @@ def cmd_battle(opponent="medium"):
         state["battles_won"] = state.get("battles_won", 0) + 1
         state["xp"] += xp_bonus
         state["level"] = calc_level(state["xp"])
-        print(f"  🏆 VICTORY! +{xp_bonus} XP")
+        animate_victory(state["name"], xp_bonus)
     else:
         state["battles_lost"] = state.get("battles_lost", 0) + 1
-        print(f"  💀 DEFEATED by {npc_name}")
+        animate_defeat(npc_name)
 
     save_state(state)
 
@@ -973,6 +1135,251 @@ def cmd_rebirth():
     print(SPRITES.get(("chaos", "Baby"), ""))
 
 
+def cmd_flex():
+    state = load_state()
+    if not state:
+        print("No pet found. Run: pet.py init")
+        return
+
+    stage = get_stage(state["level"])
+    primary = get_primary_brand(state.get("brand_xp", {}))
+    _, brand_emoji = BRAND_COLORS.get(primary, ("white", "⚪"))
+    faction = BRAND_FACTION.get(primary, "others")
+    element = FACTION_ELEMENTS.get(faction, "chaos")
+    elem_emoji = ELEMENT_EMOJI.get(element, "⚪")
+
+    badges = " ".join(
+        BRAND_COLORS.get(b, ("white", "⚪"))[1] for b in state.get("badges", [])
+    )
+
+    wins = state.get("battles_won", 0)
+    losses = state.get("battles_lost", 0)
+    total = wins + losses
+    win_rate = f"{wins / total * 100:.0f}%" if total > 0 else "—"
+
+    card = f"""
+┌─────────────────────────────────┐
+│  🦞 {state['name']}  {brand_emoji} {elem_emoji}  {element.upper():>13} │
+│  Lv.{state['level']:<3} │ {stage:<9} │ {state['xp']:>7,} XP  │
+│  ⚔ {wins}W/{losses}L ({win_rate})  │ {state['total_tokens_fed']:>9,} tok │
+│  {badges:<31} │
+│  Fed by {primary:<23} │
+└─────────────────────────────────┘"""
+
+    print(card)
+    print()
+    print("Copy and paste this to Discord / Twitter / anywhere!")
+
+
+def cmd_challenge_export():
+    state = load_state()
+    if not state:
+        print("No pet found. Run: pet.py init")
+        return
+
+    import base64
+
+    stage = get_stage(state["level"])
+    primary = get_primary_brand(state.get("brand_xp", {}))
+    faction = BRAND_FACTION.get(primary, "others")
+    element = FACTION_ELEMENTS.get(faction, "chaos")
+
+    challenge_data = {
+        "name": state["name"],
+        "level": state["level"],
+        "xp": state["xp"],
+        "stage": stage,
+        "element": element,
+        "brand": primary,
+        "hp_base": state.get("hp_base", 0),
+        "atk_base": state.get("atk_base", 0),
+        "def_base": state.get("def_base", 0),
+        "spd_base": state.get("spd_base", 0),
+        "battles_won": state.get("battles_won", 0),
+    }
+
+    encoded = base64.urlsafe_b64encode(
+        json.dumps(challenge_data, separators=(",", ":")).encode()
+    ).decode().rstrip("=")
+
+    print(f"🦞 CHALLENGE CODE:")
+    print(f"   {encoded}")
+    print()
+    print(f"Send this to your opponent. They run:")
+    print(f"   pet.py challenge-accept {encoded}")
+
+
+def cmd_challenge_accept(code):
+    state = load_state()
+    if not state:
+        print("No pet found. Run: pet.py init")
+        return
+
+    import base64
+
+    # Decode opponent
+    try:
+        padding = 4 - len(code) % 4
+        if padding != 4:
+            code += "=" * padding
+        opp = json.loads(base64.urlsafe_b64decode(code).decode())
+    except Exception:
+        print("❌ Invalid challenge code.")
+        return
+
+    player_level = state["level"]
+    player_stage = get_stage(player_level)
+    player_brand = state.get("primary_brand", "other") or "other"
+    player_faction = BRAND_FACTION.get(player_brand, "others")
+    player_element = FACTION_ELEMENTS.get(player_faction, "chaos")
+
+    opp_level = opp["level"]
+    opp_stage = opp.get("stage", get_stage(opp_level))
+    opp_element = opp.get("element", "chaos")
+    opp_name = opp.get("name", "Challenger")
+
+    # Stats with stage bonus
+    def calc_stats(level, stage):
+        bonus = STAGE_BONUS.get(stage, 1.0)
+        return {
+            "hp": int((50 + level * 10) * bonus),
+            "atk": int((10 + level * 3) * bonus),
+            "def": int((5 + level * 2) * bonus),
+            "spd": int((8 + level * 1) * bonus),
+        }
+
+    p_stats = calc_stats(player_level, player_stage)
+    o_stats = calc_stats(opp_level, opp_stage)
+
+    p_hp = p_stats["hp"]
+    o_hp = o_stats["hp"]
+
+    p_type_mod = TYPE_CHART.get((player_element, opp_element), 1.0)
+    o_type_mod = TYPE_CHART.get((opp_element, player_element), 1.0)
+
+    level_gap = abs(player_level - opp_level)
+    p_atk_bonus = 1.3 if level_gap > 10 and player_level < opp_level else 1.0
+    o_atk_bonus = 1.3 if level_gap > 10 and opp_level < player_level else 1.0
+
+    element_skills = {
+        "speed":     [{"name": "Blitz Strike",    "power": 1.0}, {"name": "Overdrive",      "power": 1.3}],
+        "order":     [{"name": "Shield Bash",     "power": 1.0}, {"name": "Fortress Slam",  "power": 1.3}],
+        "knowledge": [{"name": "Mind Pulse",      "power": 1.0}, {"name": "Data Cannon",    "power": 1.3}],
+        "shadow":    [{"name": "Dark Claw",       "power": 1.0}, {"name": "Void Crush",     "power": 1.3}],
+        "chaos":     [{"name": "Wild Slash",      "power": 1.0}, {"name": "Entropy Blast",  "power": 1.3}],
+    }
+    p_skills = element_skills.get(player_element, element_skills["chaos"])
+    o_skills = element_skills.get(opp_element, element_skills["chaos"])
+
+    p_elem_e = ELEMENT_EMOJI.get(player_element, "⚪")
+    o_elem_e = ELEMENT_EMOJI.get(opp_element, "⚪")
+
+    print(f"{'=' * 55}")
+    print(f"  🦞 {state['name']} (Lv.{player_level} {p_elem_e})  VS  🦞 {opp_name} (Lv.{opp_level} {o_elem_e})")
+    print(f"{'=' * 55}")
+
+    if p_type_mod > 1.0:
+        print(f"  {p_elem_e} > {o_elem_e} Type advantage! (x{p_type_mod})")
+    elif o_type_mod > 1.0:
+        print(f"  {o_elem_e} > {p_elem_e} Type disadvantage! (x{o_type_mod})")
+
+    print(f"  Stage: {player_stage} vs {opp_stage}")
+    print()
+
+    base_first = p_stats["spd"] >= o_stats["spd"]
+    speed_flip = random.random() < 0.15
+    p_first = not base_first if speed_flip else base_first
+
+    battle_log = []
+
+    for turn in range(1, 21):
+        if p_hp <= 0 or o_hp <= 0:
+            break
+
+        p_skill = random.choice(p_skills)
+        o_skill = random.choice(o_skills)
+
+        def calc_damage(atk, skill_power, defense, bonus, type_mod):
+            base = (atk * bonus * skill_power * type_mod) - (defense * 0.4)
+            base = max(5, base)
+            crit = 1.5 if random.random() < 0.10 else 1.0
+            variance = random.uniform(0.85, 1.15)
+            return max(1, int(base * variance * crit)), crit > 1.0
+
+        if p_first:
+            order = [
+                ("player", p_skill, p_stats, o_stats, p_atk_bonus, p_type_mod),
+                ("opp", o_skill, o_stats, p_stats, o_atk_bonus, o_type_mod),
+            ]
+        else:
+            order = [
+                ("opp", o_skill, o_stats, p_stats, o_atk_bonus, o_type_mod),
+                ("player", p_skill, p_stats, o_stats, p_atk_bonus, p_type_mod),
+            ]
+
+        for who, skill, attacker, defender, bonus, type_mod in order:
+            if p_hp <= 0 or o_hp <= 0:
+                break
+
+            dmg, is_crit = calc_damage(attacker["atk"], skill["power"], defender["def"], bonus, type_mod)
+            crit_text = " 💥CRIT!" if is_crit else ""
+
+            if who == "player":
+                o_hp -= dmg
+                o_hp = max(0, o_hp)
+                line = f"  R{turn}: 🦞 {skill['name']} → {dmg} dmg{crit_text} ({opp_name} HP: {o_hp})"
+            else:
+                p_hp -= dmg
+                p_hp = max(0, p_hp)
+                line = f"  R{turn}: 🦞 {skill['name']} → {dmg} dmg{crit_text} (You HP: {p_hp})"
+
+            print(line)
+            battle_log.append(line)
+
+    print()
+
+    won = p_hp > o_hp
+    if won:
+        xp_bonus = 50 + opp_level * 2
+        state["battles_won"] = state.get("battles_won", 0) + 1
+        state["xp"] += xp_bonus
+        state["level"] = calc_level(state["xp"])
+        print(f"  🏆 VICTORY over {opp_name}! +{xp_bonus} XP")
+    else:
+        state["battles_lost"] = state.get("battles_lost", 0) + 1
+        print(f"  💀 DEFEATED by {opp_name}")
+
+    save_state(state)
+
+    # Save battle record
+    battles = load_battles()
+    battles.append({
+        "opponent": opp_name,
+        "opponent_level": opp_level,
+        "opponent_element": opp_element,
+        "player_level": player_level,
+        "player_element": player_element,
+        "pvp": True,
+        "won": won,
+        "timestamp": datetime.now().isoformat(),
+        "log": battle_log,
+    })
+    battles = battles[-50:]
+    save_battles(battles)
+
+    print(f"  Record: {state['battles_won']}W / {state['battles_lost']}L")
+
+    # Generate result card for sharing
+    result_emoji = "🏆" if won else "💀"
+    print(f"""
+┌─────────────────────────────────────────┐
+│  {result_emoji} PVP BATTLE RESULT                    │
+│  🦞 {state['name']} (Lv.{player_level} {p_elem_e}) vs 🦞 {opp_name} (Lv.{opp_level} {o_elem_e})  │
+│  Winner: {'YOU!' if won else opp_name:<20}            │
+│  Rounds: {min(turn, 20):<3}                              │
+└─────────────────────────────────────────┘""")
+
+
 # ─── Main ─────────────────────────────────────────────────────────────
 
 def main():
@@ -985,6 +1392,9 @@ def main():
         print("  feed              Record token usage")
         print("  check-evolve      Check for evolution")
         print("  battle            Fight an NPC")
+        print("  flex              Generate shareable card")
+        print("  challenge-export  Create PvP challenge code")
+        print("  challenge-accept  Accept a PvP challenge")
         print("  leaderboard       Show local stats")
         print("  rebirth           Reset to Level 1 (keep badges)")
         return
@@ -1020,6 +1430,18 @@ def main():
 
     elif cmd == "leaderboard":
         cmd_leaderboard()
+
+    elif cmd == "flex":
+        cmd_flex()
+
+    elif cmd == "challenge-export":
+        cmd_challenge_export()
+
+    elif cmd == "challenge-accept":
+        if len(sys.argv) < 3:
+            print("Usage: pet.py challenge-accept <CODE>")
+            return
+        cmd_challenge_accept(sys.argv[2])
 
     elif cmd == "rebirth":
         cmd_rebirth()
