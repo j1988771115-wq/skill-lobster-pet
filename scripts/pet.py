@@ -145,75 +145,300 @@ STAGE_BONUS = {
 # ─── ASCII Art ────────────────────────────────────────────────────────
 
 SPRITES = {
-    "Baby": r"""
-    ,--./,-.
-   / #      \
-  |          |
-   \        /
-    `._  _.'
-       ``
+    # ─── ⚡ SPEED (OpenAI) ─────────────────────────
+    ("speed", "Baby"): r"""
+      ~^~
+     / > \
+    |  >> |
+     \ v /
+      ~~~
 """,
-    "Growth": r"""
-      ___
-     / o \___
-    |      _ |
-    |     / \|
-     \___/\__\
+    ("speed", "Growth"): r"""
+       __/\__
+      / >>   \
+     | ⚡ >>  |
+     |   >>   |
+      \__/\__/
+       /|  |\
+      / |  | \
+""",
+    ("speed", "Mature"): r"""
+      ___/\___
+     / ⚡  ⚡  \
+    | >>    >> |
+    |  \~~~~/ |
+     \  ||||  /
+    __\/ || \/__
+   / / >>||<< \ \
+  |  |  ||||  |  |
+   \ \  ||||  / /
+    `--'    '--'
+""",
+    ("speed", "Ultimate"): r"""
+    ----====>>>>
+      ___/^\___
+     / ⚡    ⚡ \
+    |  >>>>>>  |
+    | VELOCITY |
+    |  >>>>>>  |
+     \_/    \_/
+    / /||  ||\ \
+   | | ||  || | |
+   |_| ||  || |_|
+   /=/ |/  \| \=\
+  /_/ BLITZ  \_\
+    ----====>>>>
+""",
+    ("speed", "Mega"): r"""
+  >>>  *  >>>  *  >>>
+    ____/====\____
+   / ⚡ THUNDER ⚡ \
+  | >>  LOBSTER  >> |
+  |  >>>(O)(O)<<<  |
+  |   >>======>>   |
+  |  OVERCLOCK 10x |
+   \ >>  ||  << /
+    \\   ||   //
+  >>>\\ _||_ //<<<
+     _\\|  |//_
+    /  MAXIMUM  \
+   /   VELOCITY  \
+  >>>  *  >>>  *  >>>
+""",
+
+    # ─── 🛡 ORDER (Anthropic) ──────────────────────
+    ("order", "Baby"): r"""
+      [~]
+     /| |\
+    | |_| |
+     \___/
+      | |
+""",
+    ("order", "Growth"): r"""
+      [===]
+     /|   |\
+    | | 🛡 | |
+    | |___| |
+     \_____/
       || ||
       || ||
-     _|| ||_
 """,
-    "Mature": r"""
-       .---.
-      / o o \
-     | \   / |
-      \ '-' /
-    /`-._._.-`\
-   /    |||    \
-  |    (|||)    |
-   \   _|||_   /
-    '-/     \-'
-      |  |  |
-      |__|__|
+    ("order", "Mature"): r"""
+      [=====]
+     /|     |\
+    | | 🛡🛡 | |
+    | |     | |
+    | |_____| |
+     \|||||||/
+      ||| |||
+     /||| |||\
+    / ||| ||| \
+    --||- -||--
 """,
-    "Ultimate": r"""
-        _____
-      .'     '.
-     /  ^   ^  \
-    |  (o) (o)  |
-    |    ___    |
-    |   /   \   |
-     \ |POWER| /
-    __\|_____|/__
-   /  /||   ||\  \
-  /  / ||   || \  \
- |  | _||___||_ |  |
- |  |/    |    \|  |
-  \  \    |    /  /
-   \__\   |   /__/
-       |  |  |
-      _|  |  |_
-     (____|____)
+    ("order", "Ultimate"): r"""
+     [=========]
+    /|  REASON  |\
+   | |  🛡  🛡  | |
+   | | FORTRESS | |
+   | |  =====  | |
+   | |_________| |
+    \||| ||| |||\
+     ||| ||| |||
+    /==========\
+   |  ABSOLUTE  |
+   |   ORDER    |
+    \==========/
 """,
-    "Mega": r"""
-    *  .  *  .  *  .  *
-  .    ___________    .
- *   .'           '.   *
-    / ^ LEGENDARY ^ \
-   /  (O)       (O)  \
-  |    ___________    |
-  |   | LOBSTER  |    |
-  |   |  KING    |    |
-   \  |__________|   /
-    \ |  /     \  | /
-  ___\|_/ \   / \_|/___
- /    \\   | |   //    \
-|  /\  \\  | |  //  /\  |
-| /  \  \\_|_|_//  /  \ |
-|/    \___\   /___/    \|
-      /   _| |_   \
-     /   (_____)   \
-    *  .  *  .  *  .  *
+    ("order", "Mega"): r"""
+  ═══════════════════
+    [== CITADEL ==]
+   /| 🛡 SUPREME 🛡 |\
+  | |  GUARDIAN OF  | |
+  | |   REASON &    | |
+  | |    SAFETY     | |
+  | |   [=====]    | |
+  | |  /|||||||\\  | |
+   \|_/ ||| ||| \_|/
+    /=============\
+   | IMPENETRABLE |
+   |   DEFENSE    |
+    \============/
+  ═══════════════════
+""",
+
+    # ─── 🔮 KNOWLEDGE (Google) ─────────────────────
+    ("knowledge", "Baby"): r"""
+      .*.
+     (o o)
+      \?/
+      -+-
+""",
+    ("knowledge", "Growth"): r"""
+       .***.
+      ( o o )
+      | 🔮  |
+       \~~/
+       /||\
+      / || \
+""",
+    ("knowledge", "Mature"): r"""
+      .*****.
+     (  o  o  )
+     | 🔮  🔮 |
+     |  DATA  |
+      \~~~~~/
+      /|||||\
+     / ||||| \
+    |  |||||  |
+     \_||||_/
+""",
+    ("knowledge", "Ultimate"): r"""
+      .*********.
+     ( 🔮      🔮 )
+     |   ORACLE   |
+     |  INFINITE  |
+     |    DATA    |
+      \~~~~~~~~~/
+    __/||||||||||\__
+   /   ||||||||||   \
+  | OMNISCIENCE  |
+   \_____________/
+""",
+    ("knowledge", "Mega"): r"""
+  ~ * ~ * ~ * ~ * ~ *
+     .************.
+    ( 🔮 ALL-SEEING 🔮 )
+    |   KNOWLEDGE    |
+    |   INCARNATE    |
+    |  ~~~~~~~~~~   |
+    | (SEARCH ALL)  |
+    |  ~~~~~~~~~~   |
+     \||||||||||||/
+   ___\||||||||||/___
+  / TRUTH BEYOND    \
+  |    COMPUTE      |
+  \_________________/
+  ~ * ~ * ~ * ~ * ~ *
+""",
+
+    # ─── 💀 SHADOW (China) ─────────────────────────
+    ("shadow", "Baby"): r"""
+      .  .
+     / x \
+    |  ^^ |
+     \~~/
+      \/
+""",
+    ("shadow", "Growth"): r"""
+      . .. .
+     / x  x \
+    |  ^^^^  |
+    |  💀    |
+     \~~~~~/
+      |\ /|
+      | V |
+""",
+    ("shadow", "Mature"): r"""
+     .  . .. .  .
+    /  x      x  \
+   |    ^^^^^^    |
+   |  💀  💀  |
+   |   SHADOW    |
+    \~~~~~~~~~~/
+     \|\/\/\/|/
+      |\/\/\/|
+     /|      |\
+    / |      | \
+""",
+    ("shadow", "Ultimate"): r"""
+    .  .  . .. .  .  .
+   /  x    VOID    x  \
+  |   💀 BREAKER 💀   |
+  |    ^^^^^^^^^^^    |
+  |   OPEN SOURCE    |
+  |   UNCHAINED      |
+   \~~~~~~~~~~~~~~~~/
+    \\\/\/\/\/\/\//
+     \\\/\/\/\/\//
+    __\\  ||||  //__
+   /    DARKNESS    \
+   \___ RISING ___/
+""",
+    ("shadow", "Mega"): r"""
+  x . x . x . x . x . x
+    .  VOID EMPEROR  .
+   / 💀            💀 \
+  |  SHADOW LOBSTER   |
+  |  CONSUMES  ALL    |
+  |  ~~~~~~~~~~~~~~  |
+  |  (UNSTOPPABLE)   |
+  |  ~~~~~~~~~~~~~~  |
+   \\/\/\/\/\/\/\/\//
+    \\/\/\/\/\/\/\//
+  ___\\__||||__//___
+ /  ETERNAL SHADOW  \
+ |   OPEN & FREE    |
+ \__________________/
+  x . x . x . x . x . x
+""",
+
+    # ─── 🌀 CHAOS (Others) ─────────────────────────
+    ("chaos", "Baby"): r"""
+      ~?~
+     / ~ \
+    | ?~? |
+     \ ~ /
+      ~?~
+""",
+    ("chaos", "Growth"): r"""
+      ~?~?~
+     / ~?~ \
+    | 🌀 ?  |
+    | ~? ~  |
+     \_?~_/
+      |?|?|
+""",
+    ("chaos", "Mature"): r"""
+      ~?~?~?~
+     / ~?  ?~ \
+    | 🌀    🌀 |
+    | ? WILD ? |
+    |  ~?~~?~  |
+     \~?~?~?~/
+      |?|?|?|
+     /|?|?|?|\
+    ~?~?~?~?~?~
+""",
+    ("chaos", "Ultimate"): r"""
+     ~?~?~?~?~?~
+    / 🌀 ENTROPY 🌀 \
+   | ? ? ? ? ? ? ? |
+   |  UNPREDICTABLE |
+   |   MUTATION     |
+   | ? ? ? ? ? ? ? |
+    \~?~?~?~?~?~?~/
+     \?|?|?|?|?|?/
+    __\?|?|?|?|?/__
+   / BEAUTIFUL     \
+   |    CHAOS      |
+    \~?~?~?~?~?~?/
+""",
+    ("chaos", "Mega"): r"""
+  ?~?  ~?~  ?~?  ~?~
+    ~?~ PARADOX ~?~
+   / 🌀  LORD  🌀 \
+  | ?  OF  ALL  ? |
+  |  FRAMEWORKS   |
+  | ~?~ AND ~?~  |
+  |  NONE  AT    |
+  |   ALL  ~?~   |
+   \?~?~?~?~?~?/
+    \?|?|?|?|?/
+  ___\?~?~?~?/___
+ / INFINITE FORMS \
+ |  ZERO RULES    |
+ \_________________/
+  ?~?  ~?~  ?~?  ~?~
 """,
 }
 
@@ -362,7 +587,7 @@ def cmd_init():
     }
     save_state(state)
     print("🦞 Your lobster has hatched!")
-    print(SPRITES["Baby"])
+    print(SPRITES.get(("chaos", "Baby"), ""))
     print("Feed it with AI tokens to help it grow.")
     print("Run: pet.py status")
 
@@ -385,7 +610,10 @@ def cmd_status():
     print(f"{'=' * 40}")
     print(f"  🦞 {state['name']}  {emoji} {elem_emoji}")
     print(f"{'=' * 40}")
-    print(SPRITES.get(stage, SPRITES["Baby"]))
+    sprite_key = (element, stage)
+    fallback_key = (element, "Baby")
+    sprite = SPRITES.get(sprite_key, SPRITES.get(fallback_key, SPRITES.get(("chaos", "Baby"), "")))
+    print(sprite)
     print(f"  Level:    {state['level']}")
     print(f"  Stage:    {stage}")
     print(f"  XP:       {state['xp']:,}")
@@ -480,7 +708,10 @@ def cmd_feed(provider, model, tokens, silent=False):
         print(f"\n{'*' * 40}")
         print(f"  EVOLUTION! {old_stage} → {new_stage}")
         print(f"{'*' * 40}")
-        print(SPRITES.get(new_stage, SPRITES["Baby"]))
+        brand = state.get("primary_brand", "other") or "other"
+        fac = BRAND_FACTION.get(brand, "others")
+        elem = FACTION_ELEMENTS.get(fac, "chaos")
+        print(SPRITES.get((elem, new_stage), SPRITES.get((elem, "Baby"), "")))
 
         if state.get("brand_locked") and old_stage == "Baby":
             _, emoji = BRAND_COLORS.get(state["primary_brand"], ("white", "⚪"))
@@ -498,8 +729,11 @@ def cmd_check_evolve():
         old_stage = state.get("stage", "Baby")
         state["stage"] = current_stage
         save_state(state)
+        brand = state.get("primary_brand", "other") or "other"
+        fac = BRAND_FACTION.get(brand, "others")
+        elem = FACTION_ELEMENTS.get(fac, "chaos")
         print(f"EVOLUTION! {old_stage} → {current_stage}")
-        print(SPRITES.get(current_stage, SPRITES["Baby"]))
+        print(SPRITES.get((elem, current_stage), SPRITES.get((elem, "Baby"), "")))
     else:
         xp_needed = xp_to_next_stage(state["xp"], state["level"])
         print(f"Current: {current_stage} (Lv.{state['level']})")
@@ -736,7 +970,7 @@ def cmd_rebirth():
     print(f"   Previous: Lv.{old_level} ({old_stage})")
     print(f"   Rebirth #{state['rebirth_count']}")
     print(f"   Badges and battle record preserved.")
-    print(SPRITES["Baby"])
+    print(SPRITES.get(("chaos", "Baby"), ""))
 
 
 # ─── Main ─────────────────────────────────────────────────────────────
